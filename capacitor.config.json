@@ -1,0 +1,6 @@
+{
+  "appId": "com.clientscanner.app",
+  "appName": "Client Scanner",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
