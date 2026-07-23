@@ -3,26 +3,43 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>ðŸ“± Client Scanner - Resi</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-    
-    <!-- SDK Firebase Compat -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <title>📱 Client Scanner - Resi</title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Font Awesome 6 (CDN stabil) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- Library pendukung -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+    </script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js">
+    </script>
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js">
+    </script>
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: #f0f4f8;
             padding: 12px;
             max-width: 600px;
             margin: 0 auto;
             color: #1a202c;
+            -webkit-tap-highlight-color: transparent;
         }
+
+        /* ─── HEADER ─── */
         .header {
             background: linear-gradient(145deg, #1a365d, #2b6cb0);
             color: #fff;
@@ -35,11 +52,23 @@
             flex-wrap: wrap;
             gap: 4px;
         }
-        .header h1 { font-size: 1.1rem; display: flex; align-items: center; gap: 6px; }
-        .header-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+
+        .header h1 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
         .header-actions button {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
             padding: 3px 8px;
             border-radius: 30px;
@@ -48,7 +77,13 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .header-actions button.danger { background: rgba(229,62,62,0.5); border-color: rgba(229,62,62,0.3); }
+
+        .header-actions button.danger {
+            background: rgba(229, 62, 62, 0.5);
+            border-color: rgba(229, 62, 62, 0.3);
+        }
+
+        /* ─── PEER STATUS ─── */
         .peer-status {
             background: #fff;
             border-radius: 12px;
@@ -60,827 +95,1514 @@
             align-items: center;
             gap: 6px;
         }
-        .peer-status .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-        .dot.online { background: #38a169; }
-        .dot.offline { background: #a0aec0; }
-        .peer-status input { flex:1; min-width:60px; padding:4px 8px; border:2px solid #e2e8f0; border-radius:30px; font-size:0.7rem; outline:none; }
-        .peer-status input:focus { border-color:#2b6cb0; }
-        .peer-status button { padding:4px 10px; border:none; border-radius:30px; font-weight:600; font-size:0.6rem; cursor:pointer; background:#2b6cb0; color:#fff; }
+
+        .peer-status .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        .dot.online {
+            background: #38a169;
+        }
+        .dot.offline {
+            background: #a0aec0;
+        }
+
+        .peer-status input {
+            flex: 1;
+            min-width: 60px;
+            padding: 4px 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            outline: none;
+        }
+
+        .peer-status input:focus {
+            border-color: #2b6cb0;
+        }
+
+        .peer-status button {
+            padding: 4px 10px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.6rem;
+            cursor: pointer;
+            background: #2b6cb0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ─── STATS ─── */
         .stats-grid {
-            display: grid; grid-template-columns: repeat(3,1fr); gap:4px; margin-bottom:6px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-bottom: 6px;
         }
+
         .stats-grid-2 {
-            display: grid; grid-template-columns: repeat(6,1fr); gap:4px; margin-bottom:6px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            margin-bottom: 6px;
         }
+
         .stats-grid-3 {
-            display: grid; grid-template-columns: repeat(9,1fr); gap:4px; margin-bottom:10px;
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 4px;
+            margin-bottom: 10px;
         }
+
         .stat-card {
-            background:#fff; border-radius:10px; padding:6px 2px; text-align:center; border:1px solid #edf2f7;
+            background: #fff;
+            border-radius: 10px;
+            padding: 6px 2px;
+            text-align: center;
+            border: 1px solid #edf2f7;
         }
-        .stat-card .number { font-size:1.1rem; font-weight:700; }
-        .stat-card .label { font-size:0.5rem; text-transform:uppercase; color:#718096; }
-        .stat-card.total .number { color:#2b6cb0; }
-        .stat-card.printed .number { color:#38a169; }
-        .stat-card.remaining .number { color:#e53e3e; }
-        .stat-card.kertases .number { color:#805ad5; }
-        .stat-card.safah .number { color:#d69e2e; }
-        .stat-card.shopee .number { color:#e53e3e; }
-        .stat-card.jnt .number { color:#d69e2e; }
-        .stat-card.anter .number { color:#38a169; }
+
+        .stat-card .number {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .stat-card .label {
+            font-size: 0.5rem;
+            text-transform: uppercase;
+            color: #718096;
+        }
+
+        .stat-card.total .number {
+            color: #2b6cb0;
+        }
+        .stat-card.printed .number {
+            color: #38a169;
+        }
+        .stat-card.remaining .number {
+            color: #e53e3e;
+        }
+        .stat-card.kertases .number {
+            color: #805ad5;
+        }
+        .stat-card.safah .number {
+            color: #d69e2e;
+        }
+        .stat-card.shopee .number {
+            color: #e53e3e;
+        }
+        .stat-card.jnt .number {
+            color: #d69e2e;
+        }
+        .stat-card.anter .number {
+            color: #38a169;
+        }
+
+        /* ─── ACTION GRID ─── */
         .action-grid {
-            display: grid; grid-template-columns: repeat(4,1fr); gap:6px; margin-bottom:10px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
         }
+
         .action-btn {
-            background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:8px 2px;
-            text-align:center; cursor:pointer; transition:0.2s; font-weight:600; font-size:0.6rem;
-            color:#2d3748; display:flex; flex-direction:column; align-items:center; gap:2px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 8px 2px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            font-size: 0.6rem;
+            color: #2d3748;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            user-select: none;
         }
-        .action-btn i { font-size:1.2rem; color:#2b6cb0; }
-        .action-btn:active { transform:scale(0.95); background:#f7fafc; }
-        .action-btn.primary { background:#2b6cb0; border-color:#2b6cb0; color:#fff; }
-        .action-btn.primary i { color:#fff; }
-        .action-btn.green { background:#38a169; border-color:#38a169; color:#fff; }
-        .action-btn.green i { color:#fff; }
-        .action-btn.purple { background:#805ad5; border-color:#805ad5; color:#fff; }
-        .action-btn.purple i { color:#fff; }
+
+        .action-btn i {
+            font-size: 1.2rem;
+            color: #2b6cb0;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+            background: #f7fafc;
+        }
+
+        .action-btn.primary {
+            background: #2b6cb0;
+            border-color: #2b6cb0;
+            color: #fff;
+        }
+
+        .action-btn.primary i {
+            color: #fff;
+        }
+
+        .action-btn.green {
+            background: #38a169;
+            border-color: #38a169;
+            color: #fff;
+        }
+
+        .action-btn.green i {
+            color: #fff;
+        }
+
+        .action-btn.purple {
+            background: #805ad5;
+            border-color: #805ad5;
+            color: #fff;
+        }
+
+        .action-btn.purple i {
+            color: #fff;
+        }
+
+        /* ─── SCANNER SECTION ─── */
         .scanner-section {
-            background:#fff; border-radius:14px; padding:12px; border:1px solid #edf2f7;
-            margin-bottom:10px; display:none;
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid #edf2f7;
+            margin-bottom: 10px;
+            display: none;
         }
-        .scanner-section.active { display:block; }
-        .scanner-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-        .scanner-header h2 { font-size:0.85rem; font-weight:700; display:flex; align-items:center; gap:6px; }
-        .scanner-header .close-btn { background:#edf2f7; border:none; padding:3px 10px; border-radius:30px; font-weight:600; cursor:pointer; font-size:0.7rem; }
-        #scanner-container { width:100%; max-width:320px; margin:0 auto; border-radius:10px; overflow:hidden; background:#1a202c; position:relative; }
-        #scanner-container video { width:100%; display:block; }
-        .scanner-status { text-align:center; margin-top:6px; font-size:0.75rem; color:#4a5568; min-height:20px; }
-        .scanner-status.success { color:#38a169; font-weight:600; }
-        .scanner-status.error { color:#e53e3e; font-weight:600; }
+
+        .scanner-section.active {
+            display: block;
+        }
+
+        .scanner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .scanner-header h2 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .scanner-header .close-btn {
+            background: #edf2f7;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        #scanner-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #1a202c;
+            position: relative;
+        }
+
+        #scanner-container video {
+            width: 100%;
+            display: block;
+        }
+
+        .scanner-status {
+            text-align: center;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #4a5568;
+            min-height: 20px;
+        }
+
+        .scanner-status.success {
+            color: #38a169;
+            font-weight: 600;
+        }
+
+        .scanner-status.error {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        /* ─── OCR ─── */
         .ocr-upload-area {
-            background:#f7fafc; border:2px dashed #cbd5e0; border-radius:10px; padding:12px;
-            text-align:center; margin-top:6px; cursor:pointer; transition:0.2s; position:relative;
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            margin-top: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
         }
-        .ocr-upload-area input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; }
-        .ocr-upload-area i { font-size:1.5rem; color:#2b6cb0; opacity:0.5; }
-        .ocr-upload-area p { font-size:0.7rem; color:#718096; }
-        .ocr-preview { margin-top:6px; max-width:100%; border-radius:8px; display:none; border:1px solid #e2e8f0; }
-        .ocr-result { background:#f7fafc; padding:8px; border-radius:8px; margin-top:6px; font-size:0.75rem;
-            max-height:120px; overflow-y:auto; border:1px solid #e2e8f0; display:none; word-break:break-all; }
-        .ocr-actions { display:flex; gap:4px; margin-top:6px; flex-wrap:wrap; justify-content:center; }
-        .ocr-actions button { padding:4px 12px; border:none; border-radius:30px; font-weight:600; font-size:0.7rem; cursor:pointer; }
-        .ocr-actions .btn-ocr { background:#2b6cb0; color:#fff; }
-        .ocr-actions .btn-ocr:disabled { opacity:0.5; pointer-events:none; }
-        .ocr-actions .btn-cancel { background:#edf2f7; color:#4a5568; }
-        .ocr-progress { margin-top:4px; font-size:0.7rem; color:#2b6cb0; display:none; }
+
+        .ocr-upload-area input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .ocr-upload-area i {
+            font-size: 1.5rem;
+            color: #2b6cb0;
+            opacity: 0.5;
+        }
+
+        .ocr-upload-area p {
+            font-size: 0.7rem;
+            color: #718096;
+        }
+
+        .ocr-preview {
+            margin-top: 6px;
+            max-width: 100%;
+            border-radius: 8px;
+            display: none;
+            border: 1px solid #e2e8f0;
+        }
+
+        .ocr-result {
+            background: #f7fafc;
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            display: none;
+            word-break: break-all;
+        }
+
+        .ocr-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .ocr-actions button {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ocr-actions .btn-ocr {
+            background: #2b6cb0;
+            color: #fff;
+        }
+
+        .ocr-actions .btn-ocr:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .ocr-actions .btn-cancel {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .ocr-progress {
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: #2b6cb0;
+            display: none;
+        }
+
+        /* ─── MANUAL ─── */
         .manual-section {
-            background:#fff; border-radius:12px; padding:8px 12px; border:1px solid #edf2f7;
-            margin-bottom:10px; display:flex; gap:4px; flex-wrap:wrap; align-items:center;
+            background: #fff;
+            border-radius: 12px;
+            padding: 8px 12px;
+            border: 1px solid #edf2f7;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            align-items: center;
         }
-        .manual-section input { flex:1; min-width:100px; padding:6px 10px; border:2px solid #e2e8f0; border-radius:30px; font-size:0.8rem; outline:none; }
-        .manual-section input:focus { border-color:#2b6cb0; }
-        .manual-section button { padding:6px 14px; background:#2b6cb0; color:#fff; border:none; border-radius:30px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px; font-size:0.75rem; }
+
+        .manual-section input {
+            flex: 1;
+            min-width: 100px;
+            padding: 6px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .manual-section input:focus {
+            border-color: #2b6cb0;
+        }
+
+        .manual-section button {
+            padding: 6px 14px;
+            background: #2b6cb0;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* ─── FILTER ─── */
         .filter-bar {
-            display:flex; gap:4px; flex-wrap:wrap; justify-content:space-between;
-            background:#fff; padding:4px 10px; border-radius:12px; border:1px solid #edf2f7; margin-bottom:10px;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid #edf2f7;
+            margin-bottom: 10px;
         }
-        .filter-bar .left { display:flex; gap:3px; flex-wrap:wrap; }
+
+        .filter-bar .left {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+        }
+
         .filter-bar .left button {
-            padding:3px 8px; border-radius:20px; border:1px solid #e2e8f0; background:#fff;
-            font-size:0.6rem; font-weight:600; cursor:pointer; transition:0.2s;
+            padding: 3px 8px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            font-size: 0.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .filter-bar .left button.active { background:#2b6cb0; border-color:#2b6cb0; color:#fff; }
-        .filter-bar .right { display:flex; align-items:center; gap:3px; }
-        .filter-bar .right input { border:1px solid #e2e8f0; border-radius:20px; padding:3px 8px; font-size:0.65rem; width:80px; outline:none; }
-        .table-wrapper { background:#fff; border-radius:14px; border:1px solid #edf2f7; overflow-x:auto; margin-bottom:10px; }
-        table { width:100%; border-collapse:collapse; font-size:0.5rem; min-width:700px; }
-        thead { background:#f7fafc; border-bottom:2px solid #e2e8f0; }
-        thead th { padding:5px 3px; text-align:left; font-weight:700; font-size:0.45rem; text-transform:uppercase; color:#4a5568; white-space:nowrap; position:sticky; top:0; background:#f7fafc; z-index:2; }
-        tbody tr { border-bottom:1px solid #edf2f7; }
-        tbody tr.printed { background:#f0fff4; }
-        tbody td { padding:3px; vertical-align:middle; word-break:break-word; }
-        .col-status { text-align:center; width:30px; }
+
+        .filter-bar .left button.active {
+            background: #2b6cb0;
+            border-color: #2b6cb0;
+            color: #fff;
+        }
+
+        .filter-bar .right {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .filter-bar .right input {
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 3px 8px;
+            font-size: 0.65rem;
+            width: 80px;
+            outline: none;
+        }
+
+        .filter-bar .right input:focus {
+            border-color: #2b6cb0;
+        }
+
+        /* ─── TABLE ─── */
+        .table-wrapper {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f7;
+            overflow-x: auto;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.5rem;
+            min-width: 700px;
+        }
+
+        thead {
+            background: #f7fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        thead th {
+            padding: 5px 3px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.45rem;
+            text-transform: uppercase;
+            color: #4a5568;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            background: #f7fafc;
+            z-index: 2;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        tbody tr.printed {
+            background: #f0fff4;
+        }
+
+        tbody td {
+            padding: 3px;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+
+        .col-status {
+            text-align: center;
+            width: 30px;
+        }
+
         .status-badge {
-            display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
-            border-radius:50%; font-size:0.5rem; cursor:pointer; background:#edf2f7; color:#a0aec0; border:none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 0.5rem;
+            cursor: pointer;
+            background: #edf2f7;
+            color: #a0aec0;
+            border: none;
         }
-        .status-badge.printed { background:#c6f6d5; color:#38a169; }
-        .col-pdf { width:32px; text-align:center; }
-        .col-pdf img { max-width:20px; max-height:20px; border-radius:4px; border:1px solid #e2e8f0; cursor:pointer; }
-        .empty-row td { text-align:center; padding:12px; color:#a0aec0; }
+
+        .status-badge.printed {
+            background: #c6f6d5;
+            color: #38a169;
+        }
+
+        .col-pdf {
+            width: 32px;
+            text-align: center;
+        }
+
+        .col-pdf img {
+            max-width: 20px;
+            max-height: 20px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 12px;
+            color: #a0aec0;
+        }
+
+        /* ─── TOAST ─── */
         .toast-container {
-            position:fixed; top:10px; left:10px; right:10px; z-index:9999; display:flex; flex-direction:column; gap:4px; max-width:500px; margin:0 auto;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-width: 500px;
+            margin: 0 auto;
+            pointer-events: none;
         }
-        .toast { background:#1a202c; color:#fff; padding:8px 12px; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.2); display:flex; align-items:center; gap:6px; animation:slideDown 0.3s ease; font-size:0.75rem; border-left:4px solid #2b6cb0; }
-        .toast.success { border-left-color:#38a169; }
-        .toast.error { border-left-color:#e53e3e; }
-        .toast i { font-size:1rem; }
-        .toast .toast-msg { flex:1; }
-        .toast .toast-close { background:none; border:none; color:#a0aec0; cursor:pointer; font-size:0.9rem; }
-        @keyframes slideDown { from { transform:translateY(-20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-        @media (max-width:480px) {
-            body { padding:6px; }
-            .stats-grid { gap:3px; }
-            .stats-grid-2 { grid-template-columns: repeat(3,1fr); gap:3px; }
-            .stats-grid-3 { grid-template-columns: repeat(3,1fr); gap:3px; }
-            .stat-card .number { font-size:0.9rem; }
-            .stat-card .label { font-size:0.45rem; }
-            .action-grid { gap:4px; }
-            .action-btn { padding:6px 2px; font-size:0.5rem; }
-            .action-btn i { font-size:1rem; }
-            .peer-status input { font-size:0.65rem; padding:4px 8px; }
-            .peer-status button { font-size:0.6rem; padding:4px 10px; }
-            .manual-section { flex-direction:column; }
-            .manual-section input { width:100%; }
-            .manual-section button { width:100%; justify-content:center; }
-            .filter-bar .right input { width:60px; font-size:0.55rem; }
-            table { min-width:500px; font-size:0.4rem; }
-            .col-pdf { width:28px; }
-            .col-pdf img { max-width:18px; max-height:18px; }
+
+        .toast {
+            background: #1a202c;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: slideDown 0.3s ease;
+            font-size: 0.75rem;
+            border-left: 4px solid #2b6cb0;
+            pointer-events: auto;
         }
-        .hidden { display:none !important; }
+
+        .toast.success {
+            border-left-color: #38a169;
+        }
+        .toast.error {
+            border-left-color: #e53e3e;
+        }
+
+        .toast i {
+            font-size: 1rem;
+        }
+
+        .toast .toast-msg {
+            flex: 1;
+        }
+
+        .toast .toast-close {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 480px) {
+            body {
+                padding: 6px;
+            }
+
+            .stats-grid {
+                gap: 3px;
+            }
+            .stats-grid-2 {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 3px;
+            }
+            .stats-grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 3px;
+            }
+
+            .stat-card .number {
+                font-size: 0.9rem;
+            }
+            .stat-card .label {
+                font-size: 0.45rem;
+            }
+
+            .action-grid {
+                gap: 4px;
+            }
+            .action-btn {
+                padding: 6px 2px;
+                font-size: 0.5rem;
+            }
+            .action-btn i {
+                font-size: 1rem;
+            }
+
+            .peer-status input {
+                font-size: 0.65rem;
+                padding: 4px 8px;
+            }
+            .peer-status button {
+                font-size: 0.6rem;
+                padding: 4px 10px;
+            }
+
+            .manual-section {
+                flex-direction: column;
+            }
+            .manual-section input {
+                width: 100%;
+            }
+            .manual-section button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filter-bar .right input {
+                width: 60px;
+                font-size: 0.55rem;
+            }
+
+            table {
+                min-width: 500px;
+                font-size: 0.4rem;
+            }
+            .col-pdf {
+                width: 28px;
+            }
+            .col-pdf img {
+                max-width: 18px;
+                max-height: 18px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="header">
-    <h1><i class="fas fa-mobile-alt"></i> Client Scanner</h1>
-    <div class="header-actions">
-        <button class="danger" onclick="resetClientData()"><i class="fas fa-trash"></i> Reset</button>
-        <button onclick="disconnectPeer()" style="background:rgba(229,62,62,0.4);"><i class="fas fa-sign-out-alt"></i> Putus</button>
+    <!-- ─── HEADER ─── -->
+    <div class="header">
+        <h1><i class="fas fa-mobile-screen-button"></i> Client Scanner</h1>
+        <div class="header-actions">
+            <button class="danger" onclick="resetClientData()"><i class="fas fa-trash-can"></i> Reset</button>
+            <button onclick="disconnectPeer()" style="background:rgba(229,62,62,0.4);">
+                <i class="fas fa-right-from-bracket"></i> Putus
+            </button>
+        </div>
     </div>
-</div>
 
-<!-- Koneksi Firebase -->
-<div class="peer-status">
-    <span class="dot offline" id="peerDot"></span>
-    <span id="peerStatusText" style="font-weight:600;font-size:0.7rem;">Tidak terhubung</span>
-    <input type="text" id="serverPeerId" placeholder="ID Server (misal: toko-abc)" />
-    <button onclick="connectToServer()"><i class="fas fa-link"></i> Hubungkan</button>
-</div>
-
-<!-- Stats Utama -->
-<div class="stats-grid">
-    <div class="stat-card total"><div class="number" id="totalCount">0</div><div class="label">ðŸ“¦ Total</div></div>
-    <div class="stat-card printed"><div class="number" id="printedCount">0</div><div class="label">âœ… Dicetak</div></div>
-    <div class="stat-card remaining"><div class="number" id="remainingCount">0</div><div class="label">â³ Sisa</div></div>
-</div>
-
-<!-- Stats Pengirim (KERTASES & SAFAH.ID) -->
-<div class="stats-grid-2">
-    <div class="stat-card kertases"><div class="number" id="kertasesTotal">0</div><div class="label">KERTASES T</div></div>
-    <div class="stat-card kertases"><div class="number" id="kertasesPrinted">0</div><div class="label">KERTASES C</div></div>
-    <div class="stat-card kertases"><div class="number" id="kertasesRemaining">0</div><div class="label">KERTASES S</div></div>
-    <div class="stat-card safah"><div class="number" id="safahTotal">0</div><div class="label">SAFAH.ID T</div></div>
-    <div class="stat-card safah"><div class="number" id="safahPrinted">0</div><div class="label">SAFAH.ID C</div></div>
-    <div class="stat-card safah"><div class="number" id="safahRemaining">0</div><div class="label">SAFAH.ID S</div></div>
-</div>
-
-<!-- Stats Kurir (Shopee, J&T, AnterAja) -->
-<div class="stats-grid-3">
-    <div class="stat-card shopee"><div class="number" id="shopeeTotal">0</div><div class="label">SHOPEE T</div></div>
-    <div class="stat-card shopee"><div class="number" id="shopeePrinted">0</div><div class="label">SHOPEE C</div></div>
-    <div class="stat-card shopee"><div class="number" id="shopeeRemaining">0</div><div class="label">SHOPEE S</div></div>
-    <div class="stat-card jnt"><div class="number" id="jntTotal">0</div><div class="label">J&T T</div></div>
-    <div class="stat-card jnt"><div class="number" id="jntPrinted">0</div><div class="label">J&T C</div></div>
-    <div class="stat-card jnt"><div class="number" id="jntRemaining">0</div><div class="label">J&T S</div></div>
-    <div class="stat-card anter"><div class="number" id="anterTotal">0</div><div class="label">ANTER T</div></div>
-    <div class="stat-card anter"><div class="number" id="anterPrinted">0</div><div class="label">ANTER C</div></div>
-    <div class="stat-card anter"><div class="number" id="anterRemaining">0</div><div class="label">ANTER S</div></div>
-</div>
-
-<!-- Action Buttons -->
-<div class="action-grid">
-    <div class="action-btn primary" onclick="startScanner()"><i class="fas fa-qrcode"></i><span>Scan QR</span></div>
-    <div class="action-btn green" onclick="openOcr()"><i class="fas fa-image"></i><span>OCR Gambar</span></div>
-    <div class="action-btn purple" onclick="document.getElementById('manualInput').focus();"><i class="fas fa-keyboard"></i><span>Manual</span></div>
-    <div class="action-btn" onclick="requestDataFromServer()"><i class="fas fa-sync"></i><span>Refresh</span></div>
-</div>
-
-<!-- Scanner -->
-<div class="scanner-section" id="scannerSection">
-    <div class="scanner-header">
-        <h2><i class="fas fa-camera"></i> Scan Barcode / QR</h2>
-        <button class="close-btn" onclick="stopScanner()"><i class="fas fa-times"></i> Tutup</button>
+    <!-- ─── KONEKSI ─── -->
+    <div class="peer-status">
+        <span class="dot offline" id="peerDot"></span>
+        <span id="peerStatusText" style="font-weight:600;font-size:0.7rem;">Tidak terhubung</span>
+        <input type="text" id="serverPeerId" placeholder="ID Server (misal: toko-abc)" />
+        <button onclick="connectToServer()"><i class="fas fa-link"></i> Hubungkan</button>
     </div>
-    <div id="scanner-container"></div>
-    <div class="scanner-status" id="scannerStatus">Arahkan kamera ke barcode / QR</div>
-</div>
 
-<!-- OCR -->
-<div class="scanner-section" id="ocrSection">
-    <div class="scanner-header">
-        <h2><i class="fas fa-ocr"></i> OCR dari Gambar</h2>
-        <button class="close-btn" onclick="closeOcr()"><i class="fas fa-times"></i> Tutup</button>
+    <!-- ─── STATS UTAMA ─── -->
+    <div class="stats-grid">
+        <div class="stat-card total"><div class="number" id="totalCount">0</div><div class="label">📦 Total</div></div>
+        <div class="stat-card printed"><div class="number" id="printedCount">0</div><div class="label">✅ Dicetak</div></div>
+        <div class="stat-card remaining"><div class="number" id="remainingCount">0</div><div class="label">⏳ Sisa</div></div>
     </div>
-    <div class="ocr-upload-area">
-        <i class="fas fa-file-image"></i>
-        <p>Pilih gambar dari galeri atau kamera</p>
-        <input type="file" id="ocrFileInput" accept="image/*" capture="environment" />
+
+    <!-- ─── STATS PENGIRIM ─── -->
+    <div class="stats-grid-2">
+        <div class="stat-card kertases"><div class="number" id="kertasesTotal">0</div><div class="label">KERTASES T</div></div>
+        <div class="stat-card kertases"><div class="number" id="kertasesPrinted">0</div><div class="label">KERTASES C</div></div>
+        <div class="stat-card kertases"><div class="number" id="kertasesRemaining">0</div><div class="label">KERTASES S</div></div>
+        <div class="stat-card safah"><div class="number" id="safahTotal">0</div><div class="label">SAFAH.ID T</div></div>
+        <div class="stat-card safah"><div class="number" id="safahPrinted">0</div><div class="label">SAFAH.ID C</div></div>
+        <div class="stat-card safah"><div class="number" id="safahRemaining">0</div><div class="label">SAFAH.ID S</div></div>
     </div>
-    <img id="ocrPreview" class="ocr-preview" alt="Preview" />
-    <div class="ocr-actions">
-        <button class="btn-ocr" id="ocrProcessBtn" disabled onclick="processOcr()"><i class="fas fa-robot"></i> Proses OCR</button>
-        <button class="btn-cancel" onclick="clearOcr()">Bersihkan</button>
+
+    <!-- ─── STATS KURIR ─── -->
+    <div class="stats-grid-3">
+        <div class="stat-card shopee"><div class="number" id="shopeeTotal">0</div><div class="label">SHOPEE T</div></div>
+        <div class="stat-card shopee"><div class="number" id="shopeePrinted">0</div><div class="label">SHOPEE C</div></div>
+        <div class="stat-card shopee"><div class="number" id="shopeeRemaining">0</div><div class="label">SHOPEE S</div></div>
+        <div class="stat-card jnt"><div class="number" id="jntTotal">0</div><div class="label">J&T T</div></div>
+        <div class="stat-card jnt"><div class="number" id="jntPrinted">0</div><div class="label">J&T C</div></div>
+        <div class="stat-card jnt"><div class="number" id="jntRemaining">0</div><div class="label">J&T S</div></div>
+        <div class="stat-card anter"><div class="number" id="anterTotal">0</div><div class="label">ANTER T</div></div>
+        <div class="stat-card anter"><div class="number" id="anterPrinted">0</div><div class="label">ANTER C</div></div>
+        <div class="stat-card anter"><div class="number" id="anterRemaining">0</div><div class="label">ANTER S</div></div>
     </div>
-    <div class="ocr-progress" id="ocrProgress">â³ Memproses OCR...</div>
-    <div class="ocr-result" id="ocrResult"></div>
-    <div class="scanner-status" id="ocrStatus"></div>
-</div>
 
-<!-- Manual Input -->
-<div class="manual-section">
-    <input type="text" id="manualInput" placeholder="Ketik resi / order ID..." />
-    <button onclick="manualLookup()"><i class="fas fa-check"></i> Cari</button>
-</div>
-
-<!-- Filter -->
-<div class="filter-bar">
-    <div class="left">
-        <button class="active" onclick="setFilter('all')">Semua</button>
-        <button onclick="setFilter('printed')">âœ… Dicetak</button>
-        <button onclick="setFilter('unprinted')">â³ Belum</button>
+    <!-- ─── ACTION BUTTONS ─── -->
+    <div class="action-grid">
+        <div class="action-btn primary" onclick="startScanner()"><i class="fas fa-qrcode"></i><span>Scan QR</span></div>
+        <div class="action-btn green" onclick="openOcr()"><i class="fas fa-image"></i><span>OCR Gambar</span></div>
+        <div class="action-btn purple" onclick="document.getElementById('manualInput').focus();"><i class="fas fa-keyboard"></i><span>Manual</span></div>
+        <div class="action-btn" onclick="requestDataFromServer()"><i class="fas fa-rotate"></i><span>Refresh</span></div>
     </div>
-    <div class="right">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Cari..." oninput="renderTable()" />
+
+    <!-- ─── SCANNER ─── -->
+    <div class="scanner-section" id="scannerSection">
+        <div class="scanner-header">
+            <h2><i class="fas fa-camera"></i> Scan Barcode / QR</h2>
+            <button class="close-btn" onclick="stopScanner()"><i class="fas fa-xmark"></i> Tutup</button>
+        </div>
+        <div id="scanner-container"></div>
+        <div class="scanner-status" id="scannerStatus">Arahkan kamera ke barcode / QR</div>
     </div>
-</div>
 
-<!-- Table -->
-<div class="table-wrapper">
-    <table>
-        <thead>
-            <tr>
-                <th>#</th><th>NO.RESI</th><th>NO.PESANAN</th><th>PENGIRIM</th><th>JASA KIRIM</th>
-                <th>CATATAN</th><th>TANGGAL CETAK</th><th>JAM CETAK</th><th>NAMA FILE</th><th>HALAMAN</th>
-                <th class="col-status">Status</th><th class="col-pdf">PDF</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr class="empty-row"><td colspan="12">Menunggu koneksi database...</td></tr>
-        </tbody>
-    </table>
-</div>
+    <!-- ─── OCR ─── -->
+    <div class="scanner-section" id="ocrSection">
+        <div class="scanner-header">
+            <h2><i class="fas fa-robot"></i> OCR dari Gambar</h2>
+            <button class="close-btn" onclick="closeOcr()"><i class="fas fa-xmark"></i> Tutup</button>
+        </div>
+        <div class="ocr-upload-area">
+            <i class="fas fa-file-image"></i>
+            <p>Pilih gambar dari galeri atau kamera</p>
+            <input type="file" id="ocrFileInput" accept="image/*" capture="environment" />
+        </div>
+        <img id="ocrPreview" class="ocr-preview" alt="Preview" />
+        <div class="ocr-actions">
+            <button class="btn-ocr" id="ocrProcessBtn" disabled onclick="processOcr()"><i class="fas fa-microchip"></i> Proses OCR</button>
+            <button class="btn-cancel" onclick="clearOcr()"><i class="fas fa-eraser"></i> Bersihkan</button>
+        </div>
+        <div class="ocr-progress" id="ocrProgress">⏳ Memproses OCR…</div>
+        <div class="ocr-result" id="ocrResult"></div>
+        <div class="scanner-status" id="ocrStatus"></div>
+    </div>
 
-<!-- Toast -->
-<div class="toast-container" id="toastContainer"></div>
+    <!-- ─── MANUAL ─── -->
+    <div class="manual-section">
+        <input type="text" id="manualInput" placeholder="Ketik resi / order ID…" />
+        <button onclick="manualLookup()"><i class="fas fa-magnifying-glass"></i> Cari</button>
+    </div>
 
-<script>
-    // â”€â”€â”€ KONFIGURASI FIREBASE (GANTI DENGAN KREDENSIAL PROYEK ANDA) â”€â”€â”€
-    const firebaseConfig = {
-  apiKey: "AIzaSyAO7QKayEM99KajWta6oLxdyVGwPwixbbU",
-  authDomain: "resi-scanner.firebaseapp.com",
-  projectId: "resi-scanner",
-  storageBucket: "resi-scanner.firebasestorage.app",
-  messagingSenderId: "89661034430",
-  appId: "1:89661034430:web:179c801560b102033833ef",
-  measurementId: "G-3T0EJ0MTM8"
-};
+    <!-- ─── FILTER ─── -->
+    <div class="filter-bar">
+        <div class="left">
+            <button class="active" onclick="setFilter('all')">Semua</button>
+            <button onclick="setFilter('printed')">✅ Dicetak</button>
+            <button onclick="setFilter('unprinted')">⏳ Belum</button>
+        </div>
+        <div class="right">
+            <i class="fas fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Cari…" oninput="renderTable()" />
+        </div>
+    </div>
 
-    // Inisialisasi Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    <!-- ─── TABLE ─── -->
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>NO.RESI</th>
+                    <th>NO.PESANAN</th>
+                    <th>PENGIRIM</th>
+                    <th>JASA KIRIM</th>
+                    <th>CATATAN</th>
+                    <th>TANGGAL CETAK</th>
+                    <th>JAM CETAK</th>
+                    <th>NAMA FILE</th>
+                    <th>HALAMAN</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-pdf">PDF</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr class="empty-row"><td colspan="12">Menunggu koneksi database…</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-    // â”€â”€â”€ STATE â”€â”€â”€
-    let orders = [];
-    let printedSet = new Set();
-    let currentFilter = 'all';
-    let isConnected = false;
-    let scannerInstance = null;
-    let isScanning = false;
-    let unsubscribeOrders = null;
-    let currentCollectionName = "";
+    <!-- ─── TOAST ─── -->
+    <div class="toast-container" id="toastContainer"></div>
 
-    const $ = id => document.getElementById(id);
-    const tableBody = $('tableBody');
-    const totalCount = $('totalCount');
-    const printedCount = $('printedCount');
-    const remainingCount = $('remainingCount');
-    const searchInput = $('searchInput');
-    const serverPeerId = $('serverPeerId');
+    <!-- ─── SCRIPT ─── -->
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  KONFIGURASI FIREBASE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const firebaseConfig = {
+            apiKey: "AIzaSyAO7QKayEM99KajWta6oLxdyVGwPwixbbU",
+            authDomain: "resi-scanner.firebaseapp.com",
+            projectId: "resi-scanner",
+            storageBucket: "resi-scanner.firebasestorage.app",
+            messagingSenderId: "89661034430",
+            appId: "1:89661034430:web:179c801560b102033833ef",
+            measurementId: "G-3T0EJ0MTM8"
+        };
 
-    // elemen pengirim
-    const kertasesTotal = $('kertasesTotal');
-    const kertasesPrinted = $('kertasesPrinted');
-    const kertasesRemaining = $('kertasesRemaining');
-    const safahTotal = $('safahTotal');
-    const safahPrinted = $('safahPrinted');
-    const safahRemaining = $('safahRemaining');
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    // elemen kurir
-    const shopeeTotal = $('shopeeTotal');
-    const shopeePrinted = $('shopeePrinted');
-    const shopeeRemaining = $('shopeeRemaining');
-    const jntTotal = $('jntTotal');
-    const jntPrinted = $('jntPrinted');
-    const jntRemaining = $('jntRemaining');
-    const anterTotal = $('anterTotal');
-    const anterPrinted = $('anterPrinted');
-    const anterRemaining = $('anterRemaining');
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let orders = [];
+        let printedSet = new Set();
+        let currentFilter = 'all';
+        let isConnected = false;
+        let scannerInstance = null;
+        let isScanning = false;
+        let unsubscribeOrders = null;
+        let currentCollectionName = "";
 
-    function escHtml(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-    function showToast(msg, type='info', duration=3000) {
-        const container = $('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        const iconMap = {success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle'};
-        toast.innerHTML = `<i class="fas ${iconMap[type]||iconMap.info}"></i><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">&times;</button>`;
-        container.appendChild(toast);
-        setTimeout(() => { if (toast.parentElement) toast.remove(); }, duration);
-        if (type==='success') playSound('success');
-        else if (type==='error') playSound('error');
-    }
-
-    function playSound(type) {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination); gain.gain.value = 0.2;
-            if (type==='success') {
-                osc.frequency.value = 880; osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime+0.15);
-                setTimeout(()=>{ const o2=ctx.createOscillator(); const g2=ctx.createGain(); o2.connect(g2); g2.connect(ctx.destination); g2.gain.value=0.2; o2.frequency.value=1100; o2.type='sine'; o2.start(); o2.stop(ctx.currentTime+0.15); },180);
-            } else if (type==='error') {
-                osc.frequency.value = 300; osc.type = 'sawtooth'; osc.start(); osc.stop(ctx.currentTime+0.4);
-            } else {
-                osc.frequency.value = 600; osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime+0.2);
-            }
-        } catch(e) {}
-    }
-
-    function playDuplicateSound() {
-        try {
-            const utterance = new SpeechSynthesisUtterance('wah dobel resi nih');
-            utterance.lang = 'id-ID';
-            utterance.rate = 0.9;
-            utterance.pitch = 0.8;
-            speechSynthesis.speak(utterance);
-        } catch(e) {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-                gain.gain.value = 0.3;
-                osc.frequency.value = 400;
-                osc.type = 'sawtooth';
-                osc.start();
-                osc.stop(ctx.currentTime + 0.5);
-                setTimeout(() => {
-                    const o2 = ctx.createOscillator();
-                    const g2 = ctx.createGain();
-                    o2.connect(g2); g2.connect(ctx.destination);
-                    g2.gain.value = 0.3;
-                    o2.frequency.value = 300;
-                    o2.type = 'sawtooth';
-                    o2.start();
-                    o2.stop(ctx.currentTime + 0.4);
-                }, 300);
-            } catch(e2) {}
-        }
-    }
-
-    function updateStats() {
-        const total = orders.length;
-        const printed = printedSet.size;
-        const remaining = total - printed;
-        totalCount.textContent = total;
-        printedCount.textContent = printed;
-        remainingCount.textContent = remaining;
+        const $ = id => document.getElementById(id);
+        const tableBody = $('tableBody');
+        const totalCount = $('totalCount');
+        const printedCount = $('printedCount');
+        const remainingCount = $('remainingCount');
+        const searchInput = $('searchInput');
+        const serverPeerId = $('serverPeerId');
 
         // Pengirim
-        const kertases = orders.filter(o => o.pengirim && o.pengirim.toLowerCase().includes('kertases'));
-        const safah = orders.filter(o => o.pengirim && o.pengirim.toLowerCase().includes('safah.id'));
-        const kTotal = kertases.length;
-        const kPrinted = kertases.filter(o => o.printed).length;
-        const sTotal = safah.length;
-        const sPrinted = safah.filter(o => o.printed).length;
-        kertasesTotal.textContent = kTotal;
-        kertasesPrinted.textContent = kPrinted;
-        kertasesRemaining.textContent = kTotal - kPrinted;
-        safahTotal.textContent = sTotal;
-        safahPrinted.textContent = sPrinted;
-        safahRemaining.textContent = sTotal - sPrinted;
+        const kertasesTotal = $('kertasesTotal');
+        const kertasesPrinted = $('kertasesPrinted');
+        const  = $('kertasesRemaining');
+        const safahTotal = $('safahTotal');
+        const safahPrinted = $('safahPrinted');
+        const safahRemaining = $('safahRemaining');
 
         // Kurir
-        const shopee = orders.filter(o => o.jasaKirim && o.jasaKirim.toLowerCase().includes('shopee'));
-        const jnt = orders.filter(o => o.jasaKirim && (o.jasaKirim.toLowerCase().includes('j&t') || o.jasaKirim.toLowerCase().includes('jt')));
-        const anter = orders.filter(o => o.jasaKirim && (o.jasaKirim.toLowerCase().includes('anter') || o.jasaKirim.toLowerCase().includes('anteraja')));
-        const shopeeTotalC = shopee.length;
-        const shopeePrintedC = shopee.filter(o => o.printed).length;
-        const jntTotalC = jnt.length;
-        const jntPrintedC = jnt.filter(o => o.printed).length;
-        const anterTotalC = anter.length;
-        const anterPrintedC = anter.filter(o => o.printed).length;
-        shopeeTotal.textContent = shopeeTotalC;
-        shopeePrinted.textContent = shopeePrintedC;
-        shopeeRemaining.textContent = shopeeTotalC - shopeePrintedC;
-        jntTotal.textContent = jntTotalC;
-        jntPrinted.textContent = jntPrintedC;
-        jntRemaining.textContent = jntTotalC - jntPrintedC;
-        anterTotal.textContent = anterTotalC;
-        anterPrinted.textContent = anterPrintedC;
-        anterRemaining.textContent = anterTotalC - anterPrintedC;
-    }
+        const shopeeTotal = $('shopeeTotal');
+        const shopeePrinted = $('shopeePrinted');
+        const shopeeRemaining = $('shopeeRemaining');
+        const jntTotal = $('jntTotal');
+        const jntPrinted = $('jntPrinted');
+        const jntRemaining = $('jntRemaining');
+        const anterTotal = $('anterTotal');
+        const anterPrinted = $('anterPrinted');
+        const anterRemaining = $('anterRemaining');
 
-    function renderTable() {
-        const search = searchInput.value.toLowerCase().trim();
-        let data = orders;
-        if (search) {
-            data = data.filter(o => 
-                (o.noResi && o.noResi.toLowerCase().includes(search)) ||
-                (o.noPesanan && o.noPesanan.toLowerCase().includes(search)) ||
-                (o.pengirim && o.pengirim.toLowerCase().includes(search)) ||
-                (o.jasaKirim && o.jasaKirim.toLowerCase().includes(search)) ||
-                (o.catatan && o.catatan.toLowerCase().includes(search)) ||
-                (o.namaFile && o.namaFile.toLowerCase().includes(search))
-            );
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  UTILITY
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
         }
-        if (currentFilter === 'printed') data = data.filter(o => o.printed);
-        else if (currentFilter === 'unprinted') data = data.filter(o => !o.printed);
 
-        if (data.length === 0) {
-            tableBody.innerHTML = `<tr class="empty-row"><td colspan="12">${orders.length===0?'Menunggu data...':'Tidak ada yang cocok.'}</td></tr>`;
-            return;
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
         }
-        let html = '';
-        data.forEach((o, idx) => {
-            const isPrinted = o.printed;
-            const rowClass = isPrinted ? 'printed' : '';
-            const statusIcon = isPrinted ? 'fa-check-circle' : 'fa-circle';
-            const pdfImg = o.pdfData ? `<img src="${o.pdfData}" onclick="showPdfFull('${o.id}')" />` : '';
-            html += `<tr class="${rowClass}" data-id="${o.id}">
-                <td>${idx+1}</td>
-                <td>${escHtml(o.noResi)}</td>
-                <td>${escHtml(o.noPesanan)}</td>
-                <td>${escHtml(o.pengirim)}</td>
-                <td>${escHtml(o.jasaKirim)}</td>
-                <td style="max-width:120px;white-space:normal;">${escHtml(o.catatan)}</td>
-                <td>${escHtml(o.tanggalCetak)}</td>
-                <td>${escHtml(o.jamCetak)}</td>
-                <td>${escHtml(o.namaFile)}</td>
-                <td>${escHtml(o.halaman)}</td>
-                <td class="col-status"><button class="status-badge ${isPrinted?'printed':''}" onclick="togglePrint('${o.id}')"><i class="fas ${statusIcon}"></i></button></td>
-                <td class="col-pdf">${pdfImg}</td>
-            </tr>`;
-        });
-        tableBody.innerHTML = html;
-    }
 
-    function showPdfFull(id) {
-        const order = orders.find(o => o.id === id);
-        if (order && order.pdfData) {
-            const win = window.open('', '_blank');
-            win.document.write(`<img src="${order.pdfData}" style="max-width:100%;" />`);
-            win.document.title = 'Resi - ' + (order.noResi || order.noPesanan);
+        function formatTime(d) {
+            const h = String(d.getHours()).padStart(2, '0');
+            const mi = String(d.getMinutes()).padStart(2, '0');
+            return `${h}:${mi}`;
         }
-    }
 
-    function setFilter(f) {
-        currentFilter = f;
-        renderTable();
-        document.querySelectorAll('.filter-bar .left button').forEach(b => b.classList.remove('active'));
-        const map = {'all':0,'printed':1,'unprinted':2};
-        const btns = document.querySelectorAll('.filter-bar .left button');
-        if (btns[map[f]]) btns[map[f]].classList.add('active');
-    }
-
-    // â”€â”€â”€ TOGGLE PRINT (Update langsung ke Firestore) â”€â”€â”€
-    function togglePrint(id) {
-        if (!isConnected || !currentCollectionName) { showToast('Tidak terhubung ke database', 'error'); return; }
-        const order = orders.find(o => o.id === id);
-        if (!order) return;
-        
-        const newState = !order.printed;
-        const dateNow = new Date();
-        const format2Digit = (num) => String(num).padStart(2, '0');
-        const tanggal = `${dateNow.getFullYear()}-${format2Digit(dateNow.getMonth()+1)}-${format2Digit(dateNow.getDate())}`;
-        const jam = `${format2Digit(dateNow.getHours())}:${format2Digit(dateNow.getMinutes())}`;
-
-        db.collection(currentCollectionName).doc(id).update({
-            printed: newState,
-            tanggalCetak: newState ? tanggal : "",
-            jamCetak: newState ? jam : ""
-        }).then(() => {
-            showToast(newState ? 'âœ… Dicetak!' : 'ðŸ”„ Dibatalkan', newState ? 'success' : 'info', 1000);
-        }).catch((err) => {
-            console.error("Update Error:", err);
-            showToast('Gagal mengubah status di database', 'error');
-        });
-    }
-
-    // Fungsi Pembantu Tandai Resi di Firestore
-    function markAsPrinted(found, source = "") {
-        const dateNow = new Date();
-        const format2Digit = (num) => String(num).padStart(2, '0');
-        const tanggal = `${dateNow.getFullYear()}-${format2Digit(dateNow.getMonth()+1)}-${format2Digit(dateNow.getDate())}`;
-        const jam = `${format2Digit(dateNow.getHours())}:${format2Digit(dateNow.getMinutes())}`;
-
-        db.collection(currentCollectionName).doc(found.id).update({
-            printed: true,
-            tanggalCetak: tanggal,
-            jamCetak: jam
-        }).then(() => {
-            showToast(`âœ… "${found.noResi || found.noPesanan}" dicetak ${source}!`, 'success');
-        }).catch((err) => {
-            showToast('Gagal memperbarui database', 'error');
-        });
-    }
-
-    // â”€â”€â”€ MANUAL LOOKUP â”€â”€â”€
-    function manualLookup() {
-        const val = $('manualInput').value.trim();
-        if (!val) { showToast('Masukkan resi / order ID', 'error'); return; }
-        if (!isConnected) { showToast('Tidak terhubung ke server', 'error'); return; }
-        const norm = val.toLowerCase();
-        let found = orders.find(o => o.noResi && o.noResi.toLowerCase() === norm || o.noPesanan && o.noPesanan.toLowerCase() === norm);
-        if (!found) {
-            found = orders.find(o => o.noResi && o.noResi.toLowerCase().includes(norm) || o.noPesanan && o.noPesanan.toLowerCase().includes(norm));
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  TOAST
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function showToast(msg, type = 'info', duration = 3000) {
+            const container = $('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const iconMap = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-exclamation',
+                info: 'fa-circle-info'
+            };
+            toast.innerHTML = `
+                    <i class="fas ${iconMap[type] || iconMap.info}"></i>
+                    <span class="toast-msg">${msg}</span>
+                    <button class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+                `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, duration);
+            if (type === 'success') playBeep('success');
+            else if (type === 'error') playBeep('error');
         }
-        if (found) {
-            if (found.printed) {
-                showToast(`âš ï¸ "${found.noResi || found.noPesanan}" sudah dicetak`, 'error');
-                playDuplicateSound();
-            } else {
-                markAsPrinted(found);
-            }
-        } else {
-            showToast('âŒ Tidak ditemukan', 'error');
-        }
-        $('manualInput').value = '';
-        $('manualInput').focus();
-    }
 
-    // â”€â”€â”€ SCANNER â”€â”€â”€
-    async function startScanner() {
-        if (isScanning) return;
-        closeOcr();
-        $('scannerSection').classList.add('active');
-        $('scannerStatus').textContent = 'â³ Mengakses kamera...';
-        $('scannerStatus').className = 'scanner-status';
-        try {
-            const html5QrCode = new Html5Qrcode("scanner-container");
-            scannerInstance = html5QrCode;
-            const config = { fps: 15, qrbox: { width: 240, height: 180 }, aspectRatio: 1.2 };
-            await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanError);
-            isScanning = true;
-            $('scannerStatus').textContent = 'ðŸ“· Arahkan ke barcode / QR';
-            $('scannerStatus').className = 'scanner-status';
-            showToast('Scanner aktif', 'info', 1500);
-        } catch(err) {
-            $('scannerStatus').textContent = 'âŒ Gagal akses kamera: '+err.message;
-            $('scannerStatus').className = 'scanner-status error';
-            showToast('Gagal akses kamera', 'error');
-        }
-    }
+        function playBeep(type) {
+            try {
+                const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                gain.gain.value = 0.15;
 
-    function onScanSuccess(decodedText) {
-        const val = decodedText.trim();
-        if (!val) return;
-        if (!isConnected) { showToast('Tidak terhubung ke server', 'error'); return; }
-        const norm = val.toLowerCase();
-        let found = orders.find(o => o.noResi && o.noResi.toLowerCase() === norm || o.noPesanan && o.noPesanan.toLowerCase() === norm);
-        if (!found) {
-            found = orders.find(o => o.noResi && o.noResi.toLowerCase().includes(norm) || o.noPesanan && o.noPesanan.toLowerCase().includes(norm));
-        }
-        if (found) {
-            if (found.printed) {
-                showToast(`âš ï¸ "${found.noResi || found.noPesanan}" sudah dicetak`, 'error');
-                $('scannerStatus').textContent = `âš ï¸ Sudah dicetak: ${found.noResi || found.noPesanan}`;
-                $('scannerStatus').className = 'scanner-status error';
-                playDuplicateSound();
-            } else {
-                markAsPrinted(found);
-                $('scannerStatus').textContent = `âœ… Berhasil: ${found.noResi || found.noPesanan}`;
-                $('scannerStatus').className = 'scanner-status success';
-            }
-        } else {
-            showToast('âŒ Tidak ditemukan', 'error');
-            $('scannerStatus').textContent = `âŒ Tidak ditemukan: ${val}`;
-            $('scannerStatus').className = 'scanner-status error';
-        }
-        if (scannerInstance) {
-            try { scannerInstance.pause(); setTimeout(() => { if (scannerInstance && isScanning) scannerInstance.resume(); }, 1200); } catch(e) {}
-        }
-    }
-
-    function onScanError(err) {}
-
-    async function stopScanner() {
-        if (scannerInstance) { try { await scannerInstance.stop(); await scannerInstance.clear(); } catch(e) {} scannerInstance = null; }
-        isScanning = false;
-        $('scannerSection').classList.remove('active');
-        $('scannerStatus').textContent = '';
-        $('scannerStatus').className = 'scanner-status';
-        $('scanner-container').innerHTML = '';
-    }
-
-    // â”€â”€â”€ OCR â”€â”€â”€
-    function openOcr() {
-        if (isScanning) stopScanner();
-        $('ocrSection').classList.add('active');
-        $('ocrResult').style.display = 'none';
-        $('ocrStatus').textContent = '';
-        $('ocrProgress').style.display = 'none';
-        $('ocrPreview').style.display = 'none';
-        $('ocrProcessBtn').disabled = true;
-        document.getElementById('ocrFileInput').value = '';
-    }
-
-    function closeOcr() {
-        $('ocrSection').classList.remove('active');
-        $('ocrResult').style.display = 'none';
-        $('ocrStatus').textContent = '';
-        $('ocrProgress').style.display = 'none';
-        $('ocrPreview').style.display = 'none';
-        document.getElementById('ocrFileInput').value = '';
-    }
-
-    document.getElementById('ocrFileInput').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            $('ocrPreview').src = ev.target.result;
-            $('ocrPreview').style.display = 'block';
-            $('ocrProcessBtn').disabled = false;
-            $('ocrResult').style.display = 'none';
-            $('ocrStatus').textContent = 'Gambar siap, tekan Proses OCR';
-            $('ocrStatus').className = 'scanner-status info';
-        };
-        reader.readAsDataURL(file);
-    });
-
-    async function processOcr() {
-        const img = $('ocrPreview');
-        if (!img.src || img.src === '') { showToast('Pilih gambar dulu', 'error'); return; }
-        $('ocrProcessBtn').disabled = true;
-        $('ocrProgress').style.display = 'block';
-        $('ocrProgress').textContent = 'â³ Memproses OCR...';
-        $('ocrStatus').textContent = 'â³ Membaca teks...';
-        $('ocrStatus').className = 'scanner-status';
-        try {
-            const result = await Tesseract.recognize(img.src, 'ind', {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        $('ocrProgress').textContent = `â³ OCR: ${Math.round(m.progress * 100)}%`;
-                    }
+                if (type === 'success') {
+                    osc.frequency.value = 880;
+                    osc.type = 'sine';
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.12);
+                    setTimeout(() => {
+                        const o2 = ctx.createOscillator();
+                        const g2 = ctx.createGain();
+                        o2.connect(g2);
+                        g2.connect(ctx.destination);
+                        g2.gain.value = 0.15;
+                        o2.frequency.value = 1100;
+                        o2.type = 'sine';
+                        o2.start();
+                        o2.stop(ctx.currentTime + 0.12);
+                    }, 140);
+                } else if (type === 'error') {
+                    osc.frequency.value = 300;
+                    osc.type = 'sawtooth';
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.4);
+                } else {
+                    osc.frequency.value = 600;
+                    osc.type = 'sine';
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
                 }
-            });
-            const text = result.data.text;
-            $('ocrProgress').style.display = 'none';
-            $('ocrResult').style.display = 'block';
-            $('ocrResult').innerHTML = `<div style="font-weight:600;">Hasil OCR:</div><pre style="white-space:pre-wrap;word-break:break-all;">${escHtml(text)}</pre>`;
-            $('ocrStatus').textContent = 'âœ… OCR selesai. Cari kecocokan...';
-            $('ocrStatus').className = 'scanner-status success';
+            } catch (_) { /* fallback diam */ }
+        }
 
-            const detectedResi = text.match(/\b(JX|JP|JT|DM)\d{10}\b/i)?.[0] ||
-                                text.match(/\bSPXID[A-Z0-9]+\b/i)?.[0] ||
-                                text.match(/\b(11\d{12}|1000\d{10}|1002\d{10}|ANTRJ[A-Z0-9]+)\b/i)?.[0] ||
-                                text.match(/\b\d{10,18}\b/)?.[0];
-            if (detectedResi) {
-                const norm = detectedResi.toLowerCase();
-                let found = orders.find(o => o.noResi && o.noResi.toLowerCase() === norm || o.noPesanan && o.noPesanan.toLowerCase() === norm);
-                if (!found) found = orders.find(o => o.noResi && o.noResi.toLowerCase().includes(norm) || o.noPesanan && o.noPesanan.toLowerCase().includes(norm));
-                if (found) {
-                    if (found.printed) {
-                        showToast(`âš ï¸ "${found.noResi || found.noPesanan}" sudah dicetak`, 'error');
-                        $('ocrStatus').textContent = `âš ï¸ Sudah dicetak`;
-                        $('ocrStatus').className = 'scanner-status error';
-                        playDuplicateSound();
+        // ─── SUARA "WAH DOBEL RESI NIH" ───
+        function playDuplicateVoice() {
+            try {
+                const utterance = new SpeechSynthesisUtterance('wah dobel resi nih');
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.85;
+                utterance.pitch = 0.75;
+                utterance.volume = 1;
+                speechSynthesis.speak(utterance);
+            } catch (_) {
+                // fallback beep
+                try {
+                    const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    gain.gain.value = 0.25;
+                    osc.frequency.value = 400;
+                    osc.type = 'sawtooth';
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.5);
+                    setTimeout(() => {
+                        const o2 = ctx.createOscillator();
+                        const g2 = ctx.createGain();
+                        o2.connect(g2);
+                        g2.connect(ctx.destination);
+                        g2.gain.value = 0.25;
+                        o2.frequency.value = 300;
+                        o2.type = 'sawtooth';
+                        o2.start();
+                        o2.stop(ctx.currentTime + 0.4);
+                    }, 300);
+                } catch (__) {}
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  STATS & RENDER
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function updateStats() {
+            const total = orders.length;
+            const printed = printedSet.size;
+            const remaining = total - printed;
+            totalCount.textContent = total;
+            printedCount.textContent = printed;
+            remainingCount.textContent = remaining;
+
+            // Pengirim
+            const kertases = orders.filter(o => o.pengirim && o.pengirim.toLowerCase().includes('kertases'));
+            const safah = orders.filter(o => o.pengirim && o.pengirim.toLowerCase().includes('safah.id'));
+            const kTotal = kertases.length;
+            const kPrinted = kertases.filter(o => o.printed).length;
+            const sTotal = safah.length;
+            const sPrinted = safah.filter(o => o.printed).length;
+            kertasesTotal.textContent = kTotal;
+            kertasesPrinted.textContent = kPrinted;
+            kertasesRemaining.textContent = kTotal - kPrinted;
+            safahTotal.textContent = sTotal;
+            safahPrinted.textContent = sPrinted;
+            safahRemaining.textContent = sTotal - sPrinted;
+
+            // Kurir
+            const shopee = orders.filter(o => o.jasaKirim && o.jasaKirim.toLowerCase().includes('shopee'));
+            const jnt = orders.filter(o => o.jasaKirim && (o.jasaKirim.toLowerCase().includes('j&t') || o.jasaKirim
+            .toLowerCase().includes('jt')));
+            const anter = orders.filter(o => o.jasaKirim && (o.jasaKirim.toLowerCase().includes('anter') || o.jasaKirim
+                .toLowerCase().includes('anteraja')));
+            const shopeeTotalC = shopee.length;
+            const shopeePrintedC = shopee.filter(o => o.printed).length;
+            const jntTotalC = jnt.length;
+            const jntPrintedC = jnt.filter(o => o.printed).length;
+            const anterTotalC = anter.length;
+            const anterPrintedC = anter.filter(o => o.printed).length;
+            shopeeTotal.textContent = shopeeTotalC;
+            shopeePrinted.textContent = shopeePrintedC;
+            shopeeRemaining.textContent = shopeeTotalC - shopeePrintedC;
+            jntTotal.textContent = jntTotalC;
+            jntPrinted.textContent = jntPrintedC;
+            jntRemaining.textContent = jntTotalC - jntPrintedC;
+            anterTotal.textContent = anterTotalC;
+            anterPrinted.textContent = anterPrintedC;
+            anterRemaining.textContent = anterTotalC - anterPrintedC;
+        }
+
+        function renderTable() {
+            const search = searchInput.value.toLowerCase().trim();
+            let data = orders;
+            if (search) {
+                data = data.filter(o =>
+                    (o.noResi && o.noResi.toLowerCase().includes(search)) ||
+                    (o.noPesanan && o.noPesanan.toLowerCase().includes(search)) ||
+                    (o.pengirim && o.pengirim.toLowerCase().includes(search)) ||
+                    (o.jasaKirim && o.jasaKirim.toLowerCase().includes(search)) ||
+                    (o.catatan && o.catatan.toLowerCase().includes(search)) ||
+                    (o.namaFile && o.namaFile.toLowerCase().includes(search))
+                );
+            }
+            if (currentFilter === 'printed') data = data.filter(o => o.printed);
+            else if (currentFilter === 'unprinted') data = data.filter(o => !o.printed);
+
+            if (data.length === 0) {
+                tableBody.innerHTML =
+                    `<tr class="empty-row"><td colspan="12">${orders.length === 0 ? 'Menunggu data…' : 'Tidak ada yang cocok.'}</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            data.forEach((o, idx) => {
+                const isPrinted = o.printed;
+                const rowClass = isPrinted ? 'printed' : '';
+                const statusIcon = isPrinted ? 'fa-circle-check' : 'fa-circle';
+                const pdfImg = o.pdfData ? `<img src="${o.pdfData}" onclick="showPdfFull('${o.id}')" />` : '';
+                html += `
+                        <tr class="${rowClass}" data-id="${o.id}">
+                            <td>${idx + 1}</td>
+                            <td>${escHtml(o.noResi)}</td>
+                            <td>${escHtml(o.noPesanan)}</td>
+                            <td>${escHtml(o.pengirim)}</td>
+                            <td>${escHtml(o.jasaKirim)}</td>
+                            <td style="max-width:120px;white-space:normal;">${escHtml(o.catatan)}</td>
+                            <td>${escHtml(o.tanggalCetak)}</td>
+                            <td>${escHtml(o.jamCetak)}</td>
+                            <td>${escHtml(o.namaFile)}</td>
+                            <td>${escHtml(o.halaman)}</td>
+                            <td class="col-status">
+                                <button class="status-badge ${isPrinted ? 'printed' : ''}" onclick="togglePrint('${o.id}')">
+                                    <i class="fas ${statusIcon}"></i>
+                                </button>
+                            </td>
+                            <td class="col-pdf">${pdfImg}</td>
+                        </tr>
+                    `;
+            });
+            tableBody.innerHTML = html;
+        }
+
+        function showPdfFull(id) {
+            const order = orders.find(o => o.id === id);
+            if (order && order.pdfData) {
+                const win = window.open('', '_blank');
+                win.document.write(`<img src="${order.pdfData}" style="max-width:100%;" />`);
+                win.document.title = 'Resi - ' + (order.noResi || order.noPesanan);
+            }
+        }
+
+        function setFilter(f) {
+            currentFilter = f;
+            renderTable();
+            document.querySelectorAll('.filter-bar .left button').forEach(b => b.classList.remove('active'));
+            const map = { 'all': 0, 'printed': 1, 'unprinted': 2 };
+            const btns = document.querySelectorAll('.filter-bar .left button');
+            if (btns[map[f]]) btns[map[f]].classList.add('active');
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  TOGGLE PRINT (Firestore)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function togglePrint(id) {
+            if (!isConnected || !currentCollectionName) {
+                showToast('Tidak terhubung ke database', 'error');
+                return;
+            }
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+
+            const newState = !order.printed;
+            const now = new Date();
+            const tanggal = formatDate(now);
+            const jam = formatTime(now);
+
+            db.collection(currentCollectionName).doc(id).update({
+                printed: newState,
+                tanggalCetak: newState ? tanggal : '',
+                jamCetak: newState ? jam : ''
+            }).then(() => {
+                showToast(newState ? '✅ Dicetak!' : '🔄 Dibatalkan', newState ? 'success' : 'info', 1000);
+            }).catch(err => {
+                console.error('Update Error:', err);
+                showToast('Gagal mengubah status di database', 'error');
+            });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  MARK AS PRINTED (dengan suara duplikat)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function markAsPrinted(found, source = '') {
+            const now = new Date();
+            const tanggal = formatDate(now);
+            const jam = formatTime(now);
+
+            db.collection(currentCollectionName).doc(found.id).update({
+                printed: true,
+                tanggalCetak: tanggal,
+                jamCetak: jam
+            }).then(() => {
+                showToast(`✅ "${found.noResi || found.noPesanan}" dicetak ${source}!`, 'success');
+            }).catch(err => {
+                showToast('Gagal memperbarui database', 'error');
+            });
+        }
+
+        function handleFoundOrder(found, source = '') {
+            if (found.printed) {
+                // ➕ SUARA "WAH DOBEL RESI NIH"
+                playDuplicateVoice();
+                showToast(`⚠️ "${found.noResi || found.noPesanan}" sudah dicetak`, 'error');
+                return false;
+            } else {
+                markAsPrinted(found, source);
+                return true;
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  MANUAL LOOKUP
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function manualLookup() {
+            const val = $('manualInput').value.trim();
+            if (!val) { showToast('Masukkan resi / order ID', 'error'); return; }
+            if (!isConnected) { showToast('Tidak terhubung ke server', 'error'); return; }
+
+            const norm = val.toLowerCase();
+            let found = orders.find(o =>
+                (o.noResi && o.noResi.toLowerCase() === norm) ||
+                (o.noPesanan && o.noPesanan.toLowerCase() === norm)
+            );
+            if (!found) {
+                found = orders.find(o =>
+                    (o.noResi && o.noResi.toLowerCase().includes(norm)) ||
+                    (o.noPesanan && o.noPesanan.toLowerCase().includes(norm))
+                );
+            }
+
+            if (found) {
+                handleFoundOrder(found, 'manual');
+            } else {
+                showToast('❌ Tidak ditemukan', 'error');
+            }
+            $('manualInput').value = '';
+            $('manualInput').focus();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  SCANNER
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        async function startScanner() {
+            if (isScanning) return;
+            closeOcr();
+            $('scannerSection').classList.add('active');
+            $('scannerStatus').textContent = '⏳ Mengakses kamera…';
+            $('scannerStatus').className = 'scanner-status';
+
+            try {
+                const html5QrCode = new Html5Qrcode("scanner-container");
+                scannerInstance = html5QrCode;
+                const config = { fps: 15, qrbox: { width: 240, height: 180 }, aspectRatio: 1.2 };
+                await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess, onScanError);
+                isScanning = true;
+                $('scannerStatus').textContent = '📷 Arahkan ke barcode / QR';
+                $('scannerStatus').className = 'scanner-status';
+                showToast('Scanner aktif', 'info', 1500);
+            } catch (err) {
+                $('scannerStatus').textContent = '❌ Gagal akses kamera: ' + err.message;
+                $('scannerStatus').className = 'scanner-status error';
+                showToast('Gagal akses kamera', 'error');
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            const val = decodedText.trim();
+            if (!val) return;
+            if (!isConnected) { showToast('Tidak terhubung ke server', 'error'); return; }
+
+            const norm = val.toLowerCase();
+            let found = orders.find(o =>
+                (o.noResi && o.noResi.toLowerCase() === norm) ||
+                (o.noPesanan && o.noPesanan.toLowerCase() === norm)
+            );
+            if (!found) {
+                found = orders.find(o =>
+                    (o.noResi && o.noResi.toLowerCase().includes(norm)) ||
+                    (o.noPesanan && o.noPesanan.toLowerCase().includes(norm))
+                );
+            }
+
+            if (found) {
+                const success = handleFoundOrder(found, 'scan');
+                if (success) {
+                    $('scannerStatus').textContent = `✅ Berhasil: ${found.noResi || found.noPesanan}`;
+                    $('scannerStatus').className = 'scanner-status success';
+                } else {
+                    $('scannerStatus').textContent = `⚠️ Sudah dicetak: ${found.noResi || found.noPesanan}`;
+                    $('scannerStatus').className = 'scanner-status error';
+                }
+            } else {
+                showToast('❌ Tidak ditemukan', 'error');
+                $('scannerStatus').textContent = `❌ Tidak ditemukan: ${val}`;
+                $('scannerStatus').className = 'scanner-status error';
+            }
+
+            // pause sebentar biar gak double scan
+            if (scannerInstance) {
+                try {
+                    scannerInstance.pause();
+                    setTimeout(() => {
+                        if (scannerInstance && isScanning) scannerInstance.resume();
+                    }, 1200);
+                } catch (_) {}
+            }
+        }
+
+        function onScanError(_) {}
+
+        async function stopScanner() {
+            if (scannerInstance) {
+                try { await scannerInstance.stop();
+                    await scannerInstance.clear(); } catch (_) {}
+                scannerInstance = null;
+            }
+            isScanning = false;
+            $('scannerSection').classList.remove('active');
+            $('scannerStatus').textContent = '';
+            $('scannerStatus').className = 'scanner-status';
+            $('scanner-container').innerHTML = '';
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  OCR
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function openOcr() {
+            if (isScanning) stopScanner();
+            $('ocrSection').classList.add('active');
+            $('ocrResult').style.display = 'none';
+            $('ocrStatus').textContent = '';
+            $('ocrProgress').style.display = 'none';
+            $('ocrPreview').style.display = 'none';
+            $('ocrProcessBtn').disabled = true;
+            document.getElementById('ocrFileInput').value = '';
+        }
+
+        function closeOcr() {
+            $('ocrSection').classList.remove('active');
+            $('ocrResult').style.display = 'none';
+            $('ocrStatus').textContent = '';
+            $('ocrProgress').style.display = 'none';
+            $('ocrPreview').style.display = 'none';
+            document.getElementById('ocrFileInput').value = '';
+        }
+
+        document.getElementById('ocrFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                $('ocrPreview').src = ev.target.result;
+                $('ocrPreview').style.display = 'block';
+                $('ocrProcessBtn').disabled = false;
+                $('ocrResult').style.display = 'none';
+                $('ocrStatus').textContent = 'Gambar siap, tekan Proses OCR';
+                $('ocrStatus').className = 'scanner-status';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        async function processOcr() {
+            const img = $('ocrPreview');
+            if (!img.src || img.src === '') { showToast('Pilih gambar dulu', 'error'); return; }
+
+            $('ocrProcessBtn').disabled = true;
+            $('ocrProgress').style.display = 'block';
+            $('ocrProgress').textContent = '⏳ Memproses OCR…';
+            $('ocrStatus').textContent = '⏳ Membaca teks…';
+            $('ocrStatus').className = 'scanner-status';
+
+            try {
+                const result = await Tesseract.recognize(img.src, 'ind', {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            $('ocrProgress').textContent = `⏳ OCR: ${Math.round(m.progress * 100)}%`;
+                        }
+                    }
+                });
+                const text = result.data.text;
+                $('ocrProgress').style.display = 'none';
+                $('ocrResult').style.display = 'block';
+                $('ocrResult').innerHTML =
+                    `<div style="font-weight:600;">Hasil OCR:</div><pre style="white-space:pre-wrap;word-break:break-all;">${escHtml(text)}</pre>`;
+                $('ocrStatus').textContent = '✅ OCR selesai. Cari kecocokan…';
+                $('ocrStatus').className = 'scanner-status success';
+
+                // Deteksi resi
+                const detectedResi = text.match(/\b(JX|JP|JT|DM)\d{10}\b/i)?.[0] ||
+                    text.match(/\bSPXID[A-Z0-9]+\b/i)?.[0] ||
+                    text.match(/\b(11\d{12}|1000\d{10}|1002\d{10}|ANTRJ[A-Z0-9]+)\b/i)?.[0] ||
+                    text.match(/\b\d{10,18}\b/)?.[0];
+
+                if (detectedResi) {
+                    const norm = detectedResi.toLowerCase();
+                    let found = orders.find(o =>
+                        (o.noResi && o.noResi.toLowerCase() === norm) ||
+                        (o.noPesanan && o.noPesanan.toLowerCase() === norm)
+                    );
+                    if (!found) {
+                        found = orders.find(o =>
+                            (o.noResi && o.noResi.toLowerCase().includes(norm)) ||
+                            (o.noPesanan && o.noPesanan.toLowerCase().includes(norm))
+                        );
+                    }
+                    if (found) {
+                        const success = handleFoundOrder(found, 'OCR');
+                        if (success) {
+                            $('ocrStatus').textContent = `✅ Berhasil: ${found.noResi || found.noPesanan}`;
+                            $('ocrStatus').className = 'scanner-status success';
+                        } else {
+                            $('ocrStatus').textContent = `⚠️ Sudah dicetak`;
+                            $('ocrStatus').className = 'scanner-status error';
+                        }
                     } else {
-                        markAsPrinted(found, "dari OCR");
-                        $('ocrStatus').textContent = `âœ… Berhasil: ${found.noResi || found.noPesanan}`;
-                        $('ocrStatus').className = 'scanner-status success';
+                        showToast('❌ Tidak ditemukan', 'error');
+                        $('ocrStatus').textContent = `❌ Tidak ditemukan: ${detectedResi}`;
+                        $('ocrStatus').className = 'scanner-status error';
                     }
                 } else {
-                    showToast('âŒ Tidak ditemukan', 'error');
-                    $('ocrStatus').textContent = `âŒ Tidak ditemukan: ${detectedResi}`;
+                    showToast('❌ Tidak ada resi terdeteksi', 'error');
+                    $('ocrStatus').textContent = '❌ Tidak ada resi terdeteksi';
                     $('ocrStatus').className = 'scanner-status error';
                 }
-            } else {
-                showToast('âŒ Tidak ada resi terdeteksi', 'error');
-                $('ocrStatus').textContent = 'âŒ Tidak ada resi terdeteksi';
+            } catch (err) {
+                showToast('OCR gagal: ' + err.message, 'error');
+                $('ocrStatus').textContent = '❌ Gagal OCR';
                 $('ocrStatus').className = 'scanner-status error';
+            } finally {
+                $('ocrProcessBtn').disabled = false;
             }
-        } catch(err) {
-            showToast('OCR gagal: '+err.message, 'error');
-            $('ocrStatus').textContent = 'âŒ Gagal OCR';
-            $('ocrStatus').className = 'scanner-status error';
-        } finally {
-            $('ocrProcessBtn').disabled = false;
-        }
-    }
-
-    function clearOcr() {
-        document.getElementById('ocrFileInput').value = '';
-        $('ocrPreview').style.display = 'none';
-        $('ocrPreview').src = '';
-        $('ocrResult').style.display = 'none';
-        $('ocrResult').innerHTML = '';
-        $('ocrStatus').textContent = '';
-        $('ocrProgress').style.display = 'none';
-        $('ocrProcessBtn').disabled = true;
-        showToast('Bersih', 'info', 1000);
-    }
-
-    // â”€â”€â”€ RESET DATA LOKAL â”€â”€â”€
-    function resetClientData() {
-        if (!confirm('Reset koneksi data lokal? (Data di database Firebase tetap aman).')) return;
-        disconnectPeer();
-        showToast('ðŸ—‘ï¸ Data lokal direset', 'info');
-    }
-
-    // â”€â”€â”€ HUBUNGKAN DATABASE (FIRESTORE) â”€â”€â”€
-    function connectToServer() {
-        const targetId = serverPeerId.value.trim();
-        if (!targetId) { showToast('Masukkan ID Server/Toko', 'error'); return; }
-        
-        // Putuskan koneksi sebelumnya jika ada
-        if (unsubscribeOrders) {
-            unsubscribeOrders();
-            unsubscribeOrders = null;
         }
 
-        currentCollectionName = `orders_${targetId}`;
-        updatePeerStatus(true);
-        showToast(`âœ… Mencoba menyambung ke toko: ${targetId}`, 'success');
+        function clearOcr() {
+            document.getElementById('ocrFileInput').value = '';
+            $('ocrPreview').style.display = 'none';
+            $('ocrPreview').src = '';
+            $('ocrResult').style.display = 'none';
+            $('ocrResult').innerHTML = '';
+            $('ocrStatus').textContent = '';
+            $('ocrProgress').style.display = 'none';
+            $('ocrProcessBtn').disabled = true;
+            showToast('Bersih', 'info', 1000);
+        }
 
-        // Berlangganan (Subscribe) ke Firestore secara Real-Time
-        unsubscribeOrders = db.collection(currentCollectionName).onSnapshot((snapshot) => {
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  RESET DATA LOKAL
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function resetClientData() {
+            if (!confirm('Reset koneksi data lokal? (Data di database Firebase tetap aman).')) return;
+            disconnectPeer();
+            showToast('🗑️ Data lokal direset', 'info');
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  KONEKSI FIRESTORE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function connectToServer() {
+            const targetId = serverPeerId.value.trim();
+            if (!targetId) { showToast('Masukkan ID Server/Toko', 'error'); return; }
+
+            if (unsubscribeOrders) {
+                unsubscribeOrders();
+                unsubscribeOrders = null;
+            }
+
+            currentCollectionName = `orders_${targetId}`;
+            updatePeerStatus(true);
+            showToast(`✅ Mencoba menyambung ke toko: ${targetId}`, 'success');
+
+            unsubscribeOrders = db.collection(currentCollectionName).onSnapshot((snapshot) => {
+                orders = [];
+                printedSet.clear();
+                snapshot.forEach((doc) => {
+                    const orderData = doc.data();
+                    const o = { id: doc.id, ...orderData };
+                    orders.push(o);
+                    if (o.printed) printedSet.add(o.id);
+                });
+                updateStats();
+                renderTable();
+            }, (error) => {
+                console.error('Firestore Error:', error);
+                showToast('Gagal mengambil data dari Database', 'error');
+                updatePeerStatus(false);
+            });
+        }
+
+        function disconnectPeer() {
+            if (unsubscribeOrders) {
+                unsubscribeOrders();
+                unsubscribeOrders = null;
+            }
+            currentCollectionName = '';
             orders = [];
             printedSet.clear();
-            snapshot.forEach((doc) => {
-                const orderData = doc.data();
-                const o = { id: doc.id, ...orderData };
-                orders.push(o);
-                if (o.printed) {
-                    printedSet.add(o.id);
-                }
-            });
-            updateStats(); 
-            renderTable();
-        }, (error) => {
-            console.error("Firestore Error:", error);
-            showToast("Gagal mengambil data dari Database", "error");
             updatePeerStatus(false);
-        });
-    }
-
-    function disconnectPeer() {
-        if (unsubscribeOrders) {
-            unsubscribeOrders();
-            unsubscribeOrders = null;
+            updateStats();
+            renderTable();
+            showToast('Koneksi terputus', 'info');
         }
-        currentCollectionName = "";
-        orders = [];
-        printedSet.clear();
-        updatePeerStatus(false);
-        updateStats(); 
-        renderTable();
-        showToast('Koneksi terputus', 'info');
-    }
 
-    function updatePeerStatus(connected) {
-        const dot = $('peerDot');
-        const text = $('peerStatusText');
-        isConnected = connected;
-        if (connected) {
-            dot.className = 'dot online';
-            text.textContent = 'Database Terhubung (Real-Time)';
-        } else {
-            dot.className = 'dot offline';
-            text.textContent = 'Tidak Terhubung';
+        function updatePeerStatus(connected) {
+            const dot = $('peerDot');
+            const text = $('peerStatusText');
+            isConnected = connected;
+            if (connected) {
+                dot.className = 'dot online';
+                text.textContent = 'Database Terhubung (Real-Time)';
+            } else {
+                dot.className = 'dot offline';
+                text.textContent = 'Tidak Terhubung';
+            }
         }
-    }
 
-    function requestDataFromServer() {
-        if (!isConnected) { showToast('Tidak terhubung', 'error'); return; }
-        showToast('Data sudah sinkron otomatis secara Real-Time!', 'success', 2000);
-    }
+        function requestDataFromServer() {
+            if (!isConnected) { showToast('Tidak terhubung', 'error'); return; }
+            showToast('Data sudah sinkron otomatis secara Real-Time!', 'success', 2000);
+        }
 
-    setFilter('all');
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        //  INIT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        setFilter('all');
 
-    // Registrasi Global
-    window.startScanner = startScanner;
-    window.stopScanner = stopScanner;
-    window.openOcr = openOcr;
-    window.closeOcr = closeOcr;
-    window.processOcr = processOcr;
-    window.clearOcr = clearOcr;
-    window.manualLookup = manualLookup;
-    window.togglePrint = togglePrint;
-    window.setFilter = setFilter;
-    window.connectToServer = connectToServer;
-    window.disconnectPeer = disconnectPeer;
-    window.requestDataFromServer = requestDataFromServer;
-    window.showPdfFull = showPdfFull;
-    window.showToast = showToast;
-    window.resetClientData = resetClientData;
+        // Expose global
+        window.startScanner = startScanner;
+        window.stopScanner = stopScanner;
+        window.openOcr = openOcr;
+        window.closeOcr = closeOcr;
+        window.processOcr = processOcr;
+        window.clearOcr = clearOcr;
+        window.manualLookup = manualLookup;
+        window.togglePrint = togglePrint;
+        window.setFilter = setFilter;
+        window.connectToServer = connectToServer;
+        window.disconnectPeer = disconnectPeer;
+        window.requestDataFromServer = requestDataFromServer;
+        window.showPdfFull = showPdfFull;
+        window.showToast = showToast;
+        window.resetClientData = resetClientData;
+        window.playDuplicateVoice = playDuplicateVoice;
 
-    console.log('ðŸ“± Client Resi Scanner (Firebase Edition) siap.');
-</script>
+        console.log('📱 Client Resi Scanner (Firebase Edition) siap.');
+    </script>
 </body>
 </html>
